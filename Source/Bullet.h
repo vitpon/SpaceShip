@@ -9,5 +9,5 @@
 #import "Player.h"
 
 @interface Bullet : Player
-
+- (void)setInvisible;
 @end

@@ -9,6 +9,7 @@
 #import "Gun.h"
 #import "CCActionCallFuncO.h"
 #import "SpaceShip.h"
+#import "Bullet.h"
 
 #define kNumLasers      30
 
@@ -30,23 +31,40 @@
     return self;
 }
 
-- (void)shot{
+- (void)shot1{
     [[OALSimpleAudio sharedInstance] playEffect:@"laser_ship.caf"];
     CGSize winSize = [CCDirector sharedDirector].viewSize;
     
-    CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
+    CCSprite *bullet = [_shipLasers objectAtIndex:_nextShipLaser];
     _nextShipLaser++;
     if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
     
-    shipLaser.position = ccpAdd(_ship.position, ccp(0, shipLaser.contentSize.height/2+_ship.contentSize.height/2));
-    shipLaser.visible = YES;
-    [shipLaser stopAllActions];
+    bullet.position = ccpAdd(_ship.position, ccp(0, bullet.contentSize.height/2+_ship.contentSize.height/2));
+    bullet.visible = YES;
+    [bullet stopAllActions];
     
     
-    [shipLaser runAction:[CCActionSequence actions:
-                          [CCActionMoveBy actionWithDuration:3 position:ccp(0,winSize.height)],
-                          [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisible:)  object:shipLaser],
-                          nil]];
+    [bullet runAction:[CCActionSequence actions:
+                       [CCActionMoveBy actionWithDuration:3 position:ccp(0,winSize.height)],
+                       [CCActionCallFunc actionWithTarget:bullet selector:@selector(setInvisible)],
+                       nil]];
+    
+    CCSprite *bullet2 = [_shipLasers objectAtIndex:_nextShipLaser];
+    _nextShipLaser++;
+    if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
+    
+    bullet2.position = ccpAdd(_ship.position, ccp(5, bullet2.contentSize.height/2+_ship.contentSize.height/2));
+    bullet2.visible = YES;
+    [bullet2 stopAllActions];
+    
+    
+    [bullet2 runAction:[CCActionSequence actions:
+                       [CCActionMoveBy actionWithDuration:3 position:ccp(20,winSize.height)],
+                       [CCActionCallFunc actionWithTarget:bullet2 selector:@selector(setInvisible)],
+                       nil]];
+    
+    
+    
     
 }
 
@@ -55,7 +73,7 @@
     node.position = ccp(-100, -100);
 }
 
-- (void)shot3 {
+- (void)shot {
     [[OALSimpleAudio sharedInstance] playEffect:@"laser_ship.caf"];
     CGSize winSize = [CCDirector sharedDirector].viewSize;
     
@@ -83,13 +101,13 @@
     _nextShipLaser++;
     if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
     
-    shipLaser1.position = ccpAdd(_ship.position, ccp(0, shipLaser1.contentSize.height/2+_ship.contentSize.height/2));
+    shipLaser1.position = ccpAdd(_ship.position, ccp(5, shipLaser1.contentSize.height/2+_ship.contentSize.height/2));
     shipLaser1.visible = YES;
     [shipLaser1 stopAllActions];
     
     
     [shipLaser1 runAction:[CCActionSequence actions:
-                          [CCActionMoveBy actionWithDuration:3 position:ccp(30,winSize.height)],
+                          [CCActionMoveBy actionWithDuration:3 position:ccp(20,winSize.height)],
                           [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisible:)  object:shipLaser1],
                           nil]];
     
@@ -100,13 +118,13 @@
     _nextShipLaser++;
     if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
     
-    shipLaser2.position = ccpAdd(_ship.position, ccp(0, shipLaser2.contentSize.height/2+_ship.contentSize.height/2));
+    shipLaser2.position = ccpAdd(_ship.position, ccp(-5, shipLaser2.contentSize.height/2+_ship.contentSize.height/2));
     shipLaser2.visible = YES;
     [shipLaser2 stopAllActions];
     
     
     [shipLaser2 runAction:[CCActionSequence actions:
-                          [CCActionMoveBy actionWithDuration:3 position:ccp(-30,winSize.height)],
+                          [CCActionMoveBy actionWithDuration:3 position:ccp(-20,winSize.height)],
                           [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisible:)  object:shipLaser2],
                           nil]];
     

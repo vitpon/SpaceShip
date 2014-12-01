@@ -13,8 +13,9 @@
 #import "Asteroid.h"
 #import "Player.h"
 #import "SpaceShip.h"
+#import "Bullet.h"
 
-#define kNumLasers      21
+//#define kNumLasers      21
 
 #define kNumAsteroids   15
 
@@ -49,7 +50,6 @@ typedef enum {
     NSArray *_bgDusts;
 
     CGPoint _cloudParallaxRatio;
-    CGPoint _bushParallaxRatio;
     
     CCNode *_parallaxContainer;
     CCParallaxNode *_parallaxBackground;
@@ -57,8 +57,6 @@ typedef enum {
     SpaceShip *_ship;
 
     
-    NSMutableArray  *_shipLasers;
-    int _nextShipLaser;
     CGPoint touchLocationOld;
 
     
@@ -71,8 +69,6 @@ typedef enum {
     double _gameOverTime;
     bool _gameOver;
     
-//    SneakyJoystickSkinnedBase *leftJoy;
-//    SneakyButtonSkinnedBase *rightBut;
     CCPhysicsNode *_physicsNode;
     
      NSMutableArray *_life;
@@ -82,41 +78,13 @@ typedef enum {
 - (void)didLoadFromCCB {
     
     CGSize winSize = [CCDirector sharedDirector].viewSize;
-    
-//    leftJoy = [[SneakyJoystickSkinnedBase alloc] init];
-//    leftJoy.position = ccp(84,84);
-//    
-//    // Sprite that will act as the outter circle. Make this the same width as joystick.
-//    leftJoy.backgroundSprite = [CCSprite spriteWithImageNamed:@"dpad.png"];
-//    // Sprite that will act as the actual Joystick. Definitely make this smaller than outer circle.
-//    leftJoy.thumbSprite = [CCSprite spriteWithImageNamed:@"joystick.png"];
-//    
-//    leftJoy.joystick = [[SneakyJoystick alloc] initWithRect:CGRectMake(0,0,128,128)];
-//    [self addChild:leftJoy];
-//    [self schedule:@selector(tick:) interval:1.0f/60.0f];
 
-    
-    
-    
-    
-//    rightBut = [[SneakyButtonSkinnedBase alloc] init];
-//    rightBut.position = ccp(winSize.width - 32 ,32);
-//    CCColor *cc1 = [CCColor colorWithRed:255 green:255 blue:255 alpha:128];
-//    rightBut.defaultSprite = [ColoredCircleSprite circleWithColor:cc1 radius:20];
-//    CCColor *cc2 = [CCColor colorWithRed:255 green:255 blue:255 alpha:255];
-//    rightBut.activatedSprite = [ColoredCircleSprite circleWithColor:cc2 radius:20];
-//    CCColor *cc3 = [CCColor colorWithRed:255 green:0 blue:0 alpha:255];
-//    rightBut.pressSprite = [ColoredCircleSprite circleWithColor:cc3 radius:20];
-//    rightBut.button = [[SneakyButton alloc] initWithRect:CGRectMake(0, 0, 64, 64)];
-//    //    rightBut.button.isToggleable = YES;
-//    [self addChild:rightBut];
  
     _ship = (SpaceShip*)[CCBReader load:@"SpaceShip"];
     _ship.container = _physicsNode;
     [_ship setGun];
     _ship.position = ccp(winSize.width/2, winSize.width/10);
     [_physicsNode addChild:_ship];
-//    [self addChild:_ship];
     
     
     [_ship schedule:@selector(shot) interval:0.3f];
@@ -128,14 +96,8 @@ typedef enum {
     [_parallaxContainer addChild:_parallaxBackground];
     
     // Note that the bush ratio is larger than the cloud
-    _bushParallaxRatio = ccp(0.9, 1);
     _cloudParallaxRatio = ccp(0.5, 1);
-    
-    //    for (CCNode *bush in _bushes) {
-    //        CGPoint offset = bush.position;
-    //        [self removeChild:bush];
-    //        [_parallaxBackground addChild:bush z:0 parallaxRatio:_bushParallaxRatio positionOffset:offset];
-    //    }
+
     
     for (CCNode *cloud in _bgDusts) {
         CGPoint offset = cloud.position;
@@ -144,7 +106,6 @@ typedef enum {
     }
     
     NSArray *starsArray = [NSArray arrayWithObjects:@"Stars1.plist", @"Stars2.plist", @"Stars3.plist", nil];
-    //NSArray *starsArray = [NSArray arrayWithObjects:@"Stars1.plist", nil];
     for(NSString *stars in starsArray) {
         CCParticleSystem *starsEffect = [CCParticleSystem particleWithFile:stars];
         [_screan addChild:starsEffect z:1];
@@ -159,17 +120,7 @@ typedef enum {
     [[OALSimpleAudio sharedInstance] preloadEffect:@"laser_ship.caf"];
     
     
-    
-    
-    _shipLasers = [NSMutableArray arrayWithCapacity : kNumLasers];
-    for(int i = 0; i < kNumLasers; ++i) {
-        CCSprite *bullet = (CCSprite*)[CCBReader load:@"Bullet"];
-        bullet.visible = NO;
-        bullet.position = ccp(-10, -10);
-        //        [_screan addChild:bullet];
-        [_physicsNode addChild:bullet];
-        [_shipLasers insertObject: bullet atIndex: i ];
-    }
+
     
     
     _asteroids = [NSMutableArray arrayWithCapacity : kNumAsteroids];
@@ -196,30 +147,6 @@ typedef enum {
     
     
 }
-
-//-(void) tick: (CCTime) dt{
-//    if (leftJoy.joystick.velocity.x!=0 || leftJoy.joystick.velocity.y!=0 ){
-//        CGFloat x = _ship.position.x+100*leftJoy.joystick.velocity.x*dt;
-//        CGFloat y = _ship.position.y+100*leftJoy.joystick.velocity.y*dt;
-//        CGSize winSize = [CCDirector sharedDirector].viewSize;
-//        CGFloat xp = _ship.position.x;
-//        if(x > 0 && x < winSize.width){
-//            xp = x;
-//        }
-//        CGFloat yp = _ship.position.y;
-//        if(y > 0 && y < winSize.height){
-//            yp = y;
-//        }
-//        _ship.position = ccp(xp,yp);
-//    }
-//    
-//    if (rightBut.button.active == YES){
-//
-//        [self fire];
-//        
-//    }
-//}
-
 
 
 // Add new method, above update loop
@@ -327,10 +254,7 @@ typedef enum {
         asteroid.visible = YES;
 
         
-//        [asteroid runAction:[CCActionSequence actions:
-//                             [CCActionMoveTo actionWithDuration:randDuration position:ccp(asteroid.position.x ,-asteroid.contentSize.height)],
-//                             [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisibleAsteroid:)  object:asteroid],
-//                             nil]];
+
         
         [asteroid runAction:[CCActionSequence actions:
                              [CCActionMoveTo actionWithDuration:randDuration position:ccp(asteroid.position.x ,-asteroid.contentSize.height)],
@@ -361,79 +285,15 @@ typedef enum {
 //        }
 //    }
     
-    if (_lives <= 0) {
-        [_ship stopAllActions];
-        _ship.visible = FALSE;
-        [self endScene:kEndReasonLose];
-    } else if (curTime >= _gameOverTime) {
+ if (curTime >= _gameOverTime) {
         [self endScene:kEndReasonWin];
     }
 
 }
-//- (void)fire{
-//    [[OALSimpleAudio sharedInstance] playEffect:@"laser_ship.caf"];
-//    CGSize winSize = [CCDirector sharedDirector].viewSize;
-//    
-//    CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
-//    _nextShipLaser++;
-//    if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
-//    
-//    
-//    shipLaser.position = ccpAdd(_ship.position, ccp(0, shipLaser.contentSize.height/2+_ship.contentSize.height/2));
-//    shipLaser.visible = YES;
-//    [shipLaser stopAllActions];
-//    
-//    
-//    [shipLaser runAction:[CCActionSequence actions:
-//                          [CCActionMoveBy actionWithDuration:2 position:ccp(0,winSize.height)],
-//                          [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisible:)  object:shipLaser],
-//                          nil]];
-//    
-//    
-//    shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
-//    _nextShipLaser++;
-//    if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
-//    
-//    
-//    shipLaser.position = ccpAdd(_ship.position, ccp(0, shipLaser.contentSize.height/2+_ship.contentSize.height/2));
-//    shipLaser.visible = YES;
-//    [shipLaser stopAllActions];
-//    
-//    
-//    [shipLaser runAction:[CCActionSequence actions:
-//                          [CCActionMoveBy actionWithDuration:2 position:ccp(50,winSize.height)],
-//                          [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisible:)  object:shipLaser],
-//                          nil]];
-//    
-//    
-//    shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
-//    _nextShipLaser++;
-//    if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
-//    
-//    
-//    shipLaser.position = ccpAdd(_ship.position, ccp(0, shipLaser.contentSize.height/2+_ship.contentSize.height/2));
-//    shipLaser.visible = YES;
-//    [shipLaser stopAllActions];
-//    
-//    
-//    [shipLaser runAction:[CCActionSequence actions:
-//                          [CCActionMoveBy actionWithDuration:2 position:ccp(-50,winSize.height)],
-//                          [CCActionCallFuncO actionWithTarget:self selector:@selector(setInvisible:)  object:shipLaser],
-//                          nil]];
-//    
-//}
 
 
-- (void)setInvisible:(CCNode *)node {
-    node.visible = NO;
-    node.position = ccp(-100, -100);
-}
 
 
-- (void)setInvisibleAsteroid:(CCNode *)node {
-    node.visible = NO;
-    node.position = ccp(-500, -500);
-}
 
 
 
@@ -471,18 +331,21 @@ typedef enum {
 {
     if (!asteroid.visible || !player.visible) return;
     [asteroid hit];
-    CCLOG(@"SpaceShip %@",[player class]);
     if ([player isKindOfClass:[SpaceShip class]]){
         
         if(_life.count > 0){
             CCSprite* spaceShip = (CCSprite *)_life.lastObject;
             [spaceShip removeFromParent];
             [_life removeLastObject];
+        }else{
+            [_ship stopAllActions];
+            _ship.visible = FALSE;
+            [self endScene:kEndReasonLose];
         }
 
-    }else{
-        player.visible = NO;
-        player.position = ccp(-100,100);
+    }else if ([player isKindOfClass:[Bullet class]]){
+        Bullet* bullet = (Bullet *)player;
+        [bullet setInvisible];
     }
 
     

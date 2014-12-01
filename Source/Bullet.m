@@ -8,8 +8,11 @@
 
 #import "Bullet.h"
 
-@implementation Bullet : Player{
+@implementation Bullet{
 }
 
-
+- (void)setInvisible {
+    self.visible = NO;
+    self.position = ccp(-100, -100);
+}
 @end

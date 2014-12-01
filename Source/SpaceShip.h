@@ -13,6 +13,5 @@
 @property (assign) CCNode *container;
 
 - (void) shot;
-- (void) fire;
 - (void) setGun;
 @end

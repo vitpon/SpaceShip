@@ -25,7 +25,7 @@
 }
 
 -(void)shot{
-    [_gun shot3];
+    [_gun shot];
 }
 
 
